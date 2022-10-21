@@ -73,10 +73,5 @@ async def get_full_link(
                 status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
                 detail=cst.PRIVATE_URL
             )
-    count = int(full_link.number_of_uses)
-    full_link.number_of_uses = count + 1
-    session.add(full_link)
-    await session.commit()
-    await session.refresh(full_link)
     return full_link
 

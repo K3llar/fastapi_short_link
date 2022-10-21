@@ -17,11 +17,12 @@ router = APIRouter()
 
 @router.post('/',
              response_model=LinkDB,
-             response_model_exclude_none=True,
              response_model_exclude={
                  'user_id',
                  'is_hidden',
                  'is_private',
+                 'link_id',
+                 'number_of_uses'
              }, )
 async def create_new_link(
         link: LinkCreate,
@@ -34,13 +35,35 @@ async def create_new_link(
 
 @router.get('/{short_link}',
             response_class=RedirectResponse)
-async def get_link_by_short_link(
+async def get_full_link_by_short_link(
         short_link: str,
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
 ):
     link = await get_full_link(short_link, session, user)
+    count = int(link.number_of_uses)
+    link.number_of_uses = count + 1
+    session.add(link)
+    await session.commit()
+    await session.refresh(link)
     return RedirectResponse(
         url=link.original_link,
         status_code=HTTPStatus.TEMPORARY_REDIRECT
     )
+
+
+@router.get('/{short_link}/status',
+            response_model=LinkDB,
+            response_model_exclude={
+                'user_id',
+                'is_hidden',
+                'link_id',
+                'is_private',
+            })
+async def get_link_status(
+        short_link: str,
+        session: AsyncSession = Depends(get_async_session),
+        user: UserDB = Depends(current_user)
+):
+    link = await get_full_link(short_link, session, user)
+    return link

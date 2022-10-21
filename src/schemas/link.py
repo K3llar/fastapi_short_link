@@ -1,16 +1,16 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, UUID4, AnyUrl
+from pydantic import BaseModel, Field, UUID4, AnyHttpUrl
 
 
 class LinkBase(BaseModel):
-    original_link: Optional[AnyUrl] = Field(None)
-    short_link: Optional[str] = Field(None, min_length=1, max_length=16)
+    original_link: Optional[AnyHttpUrl] = Field(None)
+    short_link: Optional[str] = Field(max_length=16, default='')
     number_of_uses: Optional[int]
 
 
 class LinkCreate(BaseModel):
-    original_link: str = Field(..., min_length=1, max_length=255)
+    original_link: AnyHttpUrl
     short_link: Optional[str] = Field(max_length=16, default='')
     is_private: Optional[bool] = Field(default=False)
 
