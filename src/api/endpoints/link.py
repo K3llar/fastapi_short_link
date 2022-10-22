@@ -5,10 +5,11 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_async_session
-from src.core.user import current_user
+from src.core.user import current_user, user_or_anon
 from src.crud.link import create_link, get_full_link, hide_link
 from src.schemas.link import LinkCreate, LinkDB
 from src.schemas.user import UserDB
+from src.services.link import increase_counter
 
 router = APIRouter()
 
@@ -33,21 +34,19 @@ async def create_new_link(
 
 
 @router.get('/{short_link}',
-            response_class=RedirectResponse)
+            response_class=RedirectResponse
+            )
 async def get_full_link_by_short_link(
         short_link: str,
         session: AsyncSession = Depends(get_async_session),
-        user: UserDB = Depends(current_user)
+        user: UserDB = Depends(user_or_anon)
 ):
     """
     Получение объекта по короткой ссылке и перенаправление по адресу
+    для всех видов пользователей
     """
     link = await get_full_link(short_link, session, user)
-    count = int(link.number_of_uses)
-    link.number_of_uses = count + 1
-    session.add(link)
-    await session.commit()
-    await session.refresh(link)
+    await increase_counter(link, session)
     return RedirectResponse(
         url=link.original_link,
         status_code=HTTPStatus.TEMPORARY_REDIRECT

@@ -1,11 +1,11 @@
 from http import HTTPStatus
-from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import src.services.constants as cst
+
 from src.models.link import Link
 from src.schemas.link import LinkCreate
 from src.schemas.user import UserDB
@@ -56,37 +56,49 @@ async def get_obj_by_short_link(
         return link
 
 
+async def check_link_exist(
+        short_link: str,
+        session: AsyncSession
+):
+    link = await get_obj_by_short_link(short_link, session)
+    if not link:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=cst.NOT_FOUND.format(short_link)
+        )
+    return link
+
+
+async def check_link_privacy(
+        link_obj: Link,
+        user: UserDB
+):
+    if user:
+        if link_obj.user_id != user.id:
+            raise HTTPException(
+                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                detail=cst.PRIVATE_URL
+            )
+    else:
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail=cst.PRIVATE_URL
+        )
+
+
 async def get_full_link(
         short_link: str,
         session: AsyncSession,
         user: UserDB
 ) -> Link:
-    full_link = await get_obj_by_short_link(short_link, session)
-    if not full_link:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail=cst.NOT_FOUND.format(full_link)
-        )
-    if full_link.user_id != user.id:
-        if full_link.is_private is True:
-            raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                detail=cst.PRIVATE_URL
-            )
+    full_link = await check_link_exist(short_link, session)
+    if full_link.is_private is True:
+        await check_link_privacy(full_link, user)
     if full_link.is_hidden is True:
         raise HTTPException(
             status_code=HTTPStatus.GONE
         )
     return full_link
-
-
-async def get_link_obj_by_id(
-        link_id: int,
-        session: AsyncSession
-) -> Optional[Link]:
-    db_link = await session.get(Link,
-                                link_id)
-    return db_link
 
 
 async def hide_link(

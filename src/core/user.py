@@ -82,4 +82,5 @@ fastapi_users = FastAPIUsers(
 )
 
 current_user = fastapi_users.current_user(active=True)
+user_or_anon = fastapi_users.current_user(optional=True)
 current_superuser = fastapi_users.current_user(active=True, superuser=True)
