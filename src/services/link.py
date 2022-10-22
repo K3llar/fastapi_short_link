@@ -12,7 +12,7 @@ def get_unique_short_link(symbols=cst.SYMBOLS,
     url_link = ''
     for char in range(length):
         url_link += random.choice(symbols)
-    return
+    return url_link
 
 
 def regex_validation(string):
