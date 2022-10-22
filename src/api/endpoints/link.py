@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_async_session
-from src.core.user import current_user, current_superuser, anonymous
+from src.core.user import current_user
 from src.crud.link import (create_link,
                            get_full_link,
                            hide_link,)
