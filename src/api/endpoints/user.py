@@ -42,6 +42,7 @@ async def get_my_links(
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
 ):
+    """Возвращает все записи пользователя за исключением скрытых"""
     all_links = await get_links_by_user(session, user)
     return all_links
 

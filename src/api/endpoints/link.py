@@ -27,6 +27,7 @@ async def create_new_link(
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
 ):
+    """Создание новой записи"""
     new_link = await create_link(link, session, user)
     return new_link
 
@@ -38,6 +39,9 @@ async def get_full_link_by_short_link(
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
 ):
+    """
+    Получение объекта по короткой ссылке и перенаправление по адресу
+    """
     link = await get_full_link(short_link, session, user)
     count = int(link.number_of_uses)
     link.number_of_uses = count + 1
@@ -61,6 +65,7 @@ async def delete_link(
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
 ):
+    """Скрытие записи с сохранением в БД"""
     link = await get_full_link(short_link, session, user)
     link = await hide_link(link, session)
     return link
@@ -79,5 +84,6 @@ async def get_link_status(
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
 ):
+    """Получение количества использований короткой ссылки"""
     link = await get_full_link(short_link, session, user)
     return link
