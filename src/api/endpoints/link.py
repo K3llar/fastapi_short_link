@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_async_session
 from src.core.user import current_user, user_or_anon
-from src.crud.link import create_link, get_full_link, hide_link
-from src.schemas.link import LinkCreate, LinkDB
+from src.crud.link import create_link, get_full_link, hide_link, update_link
+from src.schemas.link import LinkCreate, LinkDB, LinkUpdate
 from src.schemas.user import UserDB
 from src.services.link import increase_counter
 
@@ -76,7 +76,6 @@ async def delete_link(
                 'user_id',
                 'is_hidden',
                 'link_id',
-                'is_private',
             })
 async def get_link_status(
         short_link: str,
@@ -85,4 +84,26 @@ async def get_link_status(
 ):
     """Получение количества использований короткой ссылки"""
     link = await get_full_link(short_link, session, user)
+    return link
+
+
+@router.patch('/{short_link}',
+              response_model=LinkDB,
+              response_model_exclude={
+                  'user_id',
+                  'is_hidden',
+                  'link_id',
+              })
+async def change_privacy_status(
+        short_link: str,
+        obj_in: LinkUpdate,
+        session: AsyncSession = Depends(get_async_session),
+        user: UserDB = Depends(current_user)
+):
+    """
+    Изменение видимости ссылки
+    Редактирование возможно только для автора ссылки
+    """
+    link = await get_full_link(short_link, session, user)
+    link = await update_link(link, obj_in, session)
     return link

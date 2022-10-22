@@ -3,8 +3,8 @@ import re
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from . import constants as cst
 from ..models import Link
+from . import constants as cst
 
 
 def get_unique_short_link(symbols=cst.SYMBOLS,

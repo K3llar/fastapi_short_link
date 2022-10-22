@@ -15,7 +15,7 @@ class LinkCreate(BaseModel):
     is_private: Optional[bool] = Field(default=False)
 
 
-class LinkUpdate(LinkBase):
+class LinkUpdate(BaseModel):
     is_private: Optional[bool]
 
 

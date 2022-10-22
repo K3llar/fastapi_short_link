@@ -1,13 +1,13 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import src.services.constants as cst
-
 from src.models.link import Link
-from src.schemas.link import LinkCreate
+from src.schemas.link import LinkCreate, LinkUpdate
 from src.schemas.user import UserDB
 from src.services.link import get_unique_short_link, regex_validation
 
@@ -106,6 +106,34 @@ async def hide_link(
         session: AsyncSession,
 ) -> Link:
     link_obj.is_hidden = True
+    session.add(link_obj)
+    await session.commit()
+    await session.refresh(link_obj)
+    return link_obj
+
+
+async def update_link(
+        link_obj: Link,
+        link_upd: LinkUpdate,
+        session: AsyncSession,
+) -> Link:
+    obj_data = jsonable_encoder(link_obj)
+    upd_data = link_upd.dict(exclude_unset=True)
+    if upd_data:
+        for field in upd_data:
+            if upd_data[field] is None:
+                raise HTTPException(
+                    status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                    detail=cst.EMPTY_FIELD.format(field)
+                )
+    else:
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail=cst.EMPTY_REQUEST
+        )
+    for field in obj_data:
+        if field in upd_data:
+            setattr(link_obj, field, upd_data[field])
     session.add(link_obj)
     await session.commit()
     await session.refresh(link_obj)
