@@ -1,15 +1,15 @@
 from http import HTTPStatus
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import src.services.constants as cst
 from src.models.link import Link
 from src.schemas.link import LinkCreate
 from src.schemas.user import UserDB
 from src.services.link import get_unique_short_link, regex_validation
-import src.services.constants as cst
 
 
 async def create_link(

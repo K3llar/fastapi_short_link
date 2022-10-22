@@ -1,13 +1,11 @@
+from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends
-
-from http import HTTPStatus
-
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_async_session
-from src.core.user import auth_backend, fastapi_users, current_user
+from src.core.user import auth_backend, current_user, fastapi_users
 from src.crud.user import get_links_by_user
 from src.schemas.link import LinkDB
 from src.schemas.user import UserDB

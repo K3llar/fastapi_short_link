@@ -1,6 +1,5 @@
 from fastapi_users_db_sqlalchemy.guid import GUID
-
-from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
 
 from src.core.db import Base
 

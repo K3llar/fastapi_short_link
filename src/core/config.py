@@ -1,6 +1,5 @@
 import os
 from logging import config as logging_config
-
 from typing import Union
 
 from pydantic import BaseSettings, EmailStr

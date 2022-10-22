@@ -1,16 +1,12 @@
 from http import HTTPStatus
-from typing import List
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_async_session
 from src.core.user import current_user
-from src.crud.link import (create_link,
-                           get_full_link,
-                           hide_link,)
+from src.crud.link import create_link, get_full_link, hide_link
 from src.schemas.link import LinkCreate, LinkDB
 from src.schemas.user import UserDB
 

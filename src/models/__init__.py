@@ -1,2 +1,2 @@
-from .user import UserTable # noqa
-from .link import Link # noqa
+from .link import Link  # noqa
+from .user import UserTable  # noqa

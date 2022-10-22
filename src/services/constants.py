@@ -1,6 +1,5 @@
 from string import ascii_letters, digits
 
-
 '''Константы'''
 SYMBOLS = f'{ascii_letters}{digits}'
 MAX_LEN_SHORT_URL = 16

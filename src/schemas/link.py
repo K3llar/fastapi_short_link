@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, UUID4, AnyHttpUrl
+from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
 
 
 class LinkBase(BaseModel):
@@ -27,5 +27,3 @@ class LinkDB(LinkBase):
 
     class Config:
         orm_mode = True
-
-

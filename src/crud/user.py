@@ -15,7 +15,7 @@ async def get_links_by_user(
         select(Link).where(
             Link.user_id == user.id
         ).where(
-            Link.is_hidden == False
+            Link.is_hidden == False # noqa
         )
     )
     all_links = all_links.scalars().all()
