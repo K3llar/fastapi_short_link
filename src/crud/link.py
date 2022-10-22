@@ -92,19 +92,21 @@ async def get_full_link(
         user: UserDB
 ) -> Link:
     full_link = await check_link_exist(short_link, session)
-    if full_link.is_private is True:
-        await check_link_privacy(full_link, user)
     if full_link.is_hidden is True:
         raise HTTPException(
             status_code=HTTPStatus.GONE
         )
+    if full_link.is_private is True:
+        await check_link_privacy(full_link, user)
     return full_link
 
 
 async def hide_link(
         link_obj: Link,
         session: AsyncSession,
+        user: UserDB
 ) -> Link:
+    await check_link_privacy(link_obj, user)
     link_obj.is_hidden = True
     session.add(link_obj)
     await session.commit()
@@ -116,7 +118,9 @@ async def update_link(
         link_obj: Link,
         link_upd: LinkUpdate,
         session: AsyncSession,
+        user: UserDB
 ) -> Link:
+    await check_link_privacy(link_obj, user)
     obj_data = jsonable_encoder(link_obj)
     upd_data = link_upd.dict(exclude_unset=True)
     if upd_data:

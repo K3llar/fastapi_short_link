@@ -66,7 +66,7 @@ async def delete_link(
 ):
     """Скрытие записи с сохранением в БД"""
     link = await get_full_link(short_link, session, user)
-    link = await hide_link(link, session)
+    link = await hide_link(link, session, user)
     return link
 
 
@@ -105,5 +105,5 @@ async def change_privacy_status(
     Редактирование возможно только для автора ссылки
     """
     link = await get_full_link(short_link, session, user)
-    link = await update_link(link, obj_in, session)
+    link = await update_link(link, obj_in, session, user)
     return link
