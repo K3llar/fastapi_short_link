@@ -49,7 +49,7 @@ async def get_obj_by_short_link(
 ):
     link = await session.execute(select(Link).where(
         Link.short_link == short_link
-        )
+    )
     )
     link = link.scalars().first()
     if link:
@@ -67,11 +67,34 @@ async def get_full_link(
             status_code=HTTPStatus.NOT_FOUND,
             detail=cst.NOT_FOUND.format(full_link)
         )
-    if full_link.is_private is True:
-        if user.id != full_link.user_id:
+    if full_link.user_id != user.id:
+        if full_link.is_private is True:
             raise HTTPException(
                 status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
                 detail=cst.PRIVATE_URL
             )
+    if full_link.is_hidden is True:
+        raise HTTPException(
+            status_code=HTTPStatus.GONE
+        )
     return full_link
 
+
+async def get_link_obj_by_id(
+        link_id: int,
+        session: AsyncSession
+) -> Optional[Link]:
+    db_link = await session.get(Link,
+                                link_id)
+    return db_link
+
+
+async def hide_link(
+        link_obj: Link,
+        session: AsyncSession,
+) -> Link:
+    link_obj.is_hidden = True
+    session.add(link_obj)
+    await session.commit()
+    await session.refresh(link_obj)
+    return link_obj

@@ -8,7 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_async_session
 from src.core.user import current_user, current_superuser, anonymous
-from src.crud.link import create_link, get_full_link
+from src.crud.link import (create_link,
+                           get_full_link,
+                           hide_link,)
 from src.schemas.link import LinkCreate, LinkDB
 from src.schemas.user import UserDB
 
@@ -50,6 +52,22 @@ async def get_full_link_by_short_link(
         url=link.original_link,
         status_code=HTTPStatus.TEMPORARY_REDIRECT
     )
+
+
+@router.delete('/{short_link}',
+               response_model=LinkDB,
+               response_model_exclude={
+                   'user_id',
+                   'link_id'
+               })
+async def delete_link(
+        short_link: str,
+        session: AsyncSession = Depends(get_async_session),
+        user: UserDB = Depends(current_user)
+):
+    link = await get_full_link(short_link, session, user)
+    link = await hide_link(link, session)
+    return link
 
 
 @router.get('/{short_link}/status',
