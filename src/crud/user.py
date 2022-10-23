@@ -1,5 +1,3 @@
-from typing import List
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +8,7 @@ from src.schemas.user import UserDB
 async def get_links_by_user(
         session: AsyncSession,
         user: UserDB
-) -> List[Link]:
+) -> list[Link]:
     all_links = await session.execute(
         select(Link).where(
             Link.user_id == user.id

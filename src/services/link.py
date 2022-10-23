@@ -7,15 +7,15 @@ from ..models import Link
 from . import constants as cst
 
 
-def get_unique_short_link(symbols=cst.SYMBOLS,
-                          length=cst.LEN_SHORT_URL):
-    url_link = ''
-    for char in range(length):
-        url_link += random.choice(symbols)
+def get_unique_short_link(
+        symbols=cst.SYMBOLS,
+        length=cst.LEN_SHORT_URL) -> str:
+    url_link = ''.join(random.choice(symbols)
+                       for _ in range(length))
     return url_link
 
 
-def regex_validation(string):
+def regex_validation(string) -> bool:
     if re.match(cst.PATTERN, string):
         return True
     return False

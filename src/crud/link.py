@@ -46,7 +46,7 @@ async def create_link(
 async def get_obj_by_short_link(
         short_link: str,
         session: AsyncSession
-):
+) -> Link:
     link = await session.execute(select(Link).where(
         Link.short_link == short_link
     )
@@ -59,7 +59,7 @@ async def get_obj_by_short_link(
 async def check_link_exist(
         short_link: str,
         session: AsyncSession
-):
+) -> Link:
     link = await get_obj_by_short_link(short_link, session)
     if not link:
         raise HTTPException(
@@ -72,17 +72,17 @@ async def check_link_exist(
 async def check_link_privacy(
         link_obj: Link,
         user: UserDB
-):
+) -> None:
     if user:
         if link_obj.user_id != user.id:
             raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                detail=cst.PRIVATE_URL
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=cst.NOT_FOUND.format(link_obj.short_link)
             )
     else:
         raise HTTPException(
-            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-            detail=cst.PRIVATE_URL
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=cst.NOT_FOUND.format(link_obj.short_link)
         )
 
 
@@ -92,7 +92,7 @@ async def get_full_link(
         user: UserDB
 ) -> Link:
     full_link = await check_link_exist(short_link, session)
-    if full_link.is_hidden is True:
+    if full_link.is_hidden:
         raise HTTPException(
             status_code=HTTPStatus.GONE
         )
@@ -101,7 +101,7 @@ async def get_full_link(
     return full_link
 
 
-async def hide_link(
+async def remove_link(
         link_obj: Link,
         session: AsyncSession,
         user: UserDB

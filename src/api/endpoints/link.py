@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_async_session
 from src.core.user import current_user, user_or_anon
-from src.crud.link import create_link, get_full_link, hide_link, update_link
+from src.crud.link import create_link, get_full_link, remove_link, update_link
+from src.models import Link
 from src.schemas.link import LinkCreate, LinkDB, LinkUpdate
 from src.schemas.user import UserDB
 from src.services.link import increase_counter
@@ -27,7 +28,7 @@ async def create_new_link(
         link: LinkCreate,
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
-):
+) -> Link:
     """Создание новой записи"""
     new_link = await create_link(link, session, user)
     return new_link
@@ -40,7 +41,7 @@ async def get_full_link_by_short_link(
         short_link: str,
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(user_or_anon)
-):
+) -> RedirectResponse:
     """
     Получение объекта по короткой ссылке и перенаправление по адресу
     для всех видов пользователей
@@ -63,10 +64,10 @@ async def delete_link(
         short_link: str,
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
-):
-    """Скрытие записи с сохранением в БД"""
+) -> Link:
+    """Удаление записи"""
     link = await get_full_link(short_link, session, user)
-    link = await hide_link(link, session, user)
+    link = await remove_link(link, session, user)
     return link
 
 
@@ -81,7 +82,7 @@ async def get_link_status(
         short_link: str,
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
-):
+) -> Link:
     """Получение количества использований короткой ссылки"""
     link = await get_full_link(short_link, session, user)
     return link
@@ -99,7 +100,7 @@ async def change_privacy_status(
         obj_in: LinkUpdate,
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
-):
+) -> Link:
     """
     Изменение видимости ссылки
     Редактирование возможно только для автора ссылки

@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.db import get_async_session
 from src.core.user import auth_backend, current_user, fastapi_users
 from src.crud.user import get_links_by_user
+from src.models import Link
 from src.schemas.link import LinkDB
 from src.schemas.user import UserDB
 
@@ -32,7 +32,7 @@ router.include_router(
 @router.get(
     '/users/me/my_links',
     tags=['users'],
-    response_model=List[LinkDB],
+    response_model=list[LinkDB],
     response_model_exclude={
         'link_id',
         'user_id'
@@ -41,8 +41,8 @@ router.include_router(
 async def get_my_links(
         session: AsyncSession = Depends(get_async_session),
         user: UserDB = Depends(current_user)
-):
-    """Возвращает все записи пользователя за исключением скрытых"""
+) -> list[Link]:
+    """Возвращает все актуальные записи пользователя"""
     all_links = await get_links_by_user(session, user)
     return all_links
 

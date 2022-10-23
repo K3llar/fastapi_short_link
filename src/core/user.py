@@ -1,5 +1,4 @@
 import logging
-from typing import Optional, Union
 
 from fastapi import Depends, Request
 from fastapi_users import (BaseUserManager, FastAPIUsers,
@@ -49,7 +48,7 @@ class UserManager(BaseUserManager[UserCreate, UserDB]):
     async def validate_password(
             self,
             password: str,
-            user: Union[UserCreate, UserDB]
+            user: UserCreate | UserDB
     ) -> None:
         if len(password) < 3:
             raise InvalidPasswordException(
@@ -63,9 +62,9 @@ class UserManager(BaseUserManager[UserCreate, UserDB]):
     async def on_after_register(
             self,
             user: UserDB,
-            request: Optional[Request] = None
+            request: Request | None = None
     ) -> None:
-        logger.info(f'Пользователь {user.email} был зарегистрирован')
+        logger.info(f'User {user.email} registered')
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):

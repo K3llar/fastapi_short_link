@@ -1,9 +1,9 @@
-"""empty message
+"""
+Initial database with tables: User, Links
 
 Revision ID: 79373ca62ee3
 Revises: 
 Create Date: 2022-10-21 19:02:45.978574
-
 """
 import fastapi_users_db_sqlalchemy
 from alembic import op
